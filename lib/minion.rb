@@ -71,7 +71,7 @@ module Minion
   end
 
   # run amqp poll and initializes subscriptions
-  def run
+  def run(options = {})
     return if @@halt
     log "Starting minion"
 
@@ -81,10 +81,10 @@ module Minion
     EM.run do
       AMQP.start(amqp_config) do |connection|
         self.amqp = connection
-        AMQP::Channel.new(connection).prefetch(1)
+        AMQP::Channel.new(connection).prefetch(options[:prefetch] || 1)
         check_all
       end
-      
+
       @@evented.map(&:call)
     end
   end
